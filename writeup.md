@@ -177,15 +177,17 @@ Here's a [link to my video result in the workspace](https://classroom.udacity.co
 Issues faced in my project might be: 
 - the bugs of the image dimensions in my code, sometimes weighing two images wouldn't work and there would be errors that mean that the two images' dimensions are not equal, it took me a while to understand what this means and to fix it.
 - the rest were how to turn the pipeline in my head of the Look Ahead filter and the smoothing into actual code.
+
 My pipeline may fail: 
- - probably if the car was moving up or down a hill, the perspective transform wouldn't work as expected.
- - if the camera is not implemented right in the center of the vehicle the calculations may fail.
- - if there's a great curve my sliding window algorithm wouldn't probably work.
- - if the street is not well paved i.e it has grooves or holes (like in the challenge video), the pipeline will fail to detect the lane pixels since it's originally based on the gradient change. 
- - if the front glass of the vehicle is not clear (like in the harder challenge video) also when someone crosses the lane in front of me.
+- probably if the car was moving up or down a hill, the perspective transform wouldn't work as expected.
+- if the camera is not implemented right in the center of the vehicle the calculations may fail.
+- if there's a great curve my sliding window algorithm wouldn't probably work.
+- if the street is not well paved i.e it has grooves or holes (like in the challenge video), the pipeline will fail to detect the lane pixels since it's originally based on the gradient change. 
+- if the front glass of the vehicle is not clear (like in the harder challenge video) also when someone crosses the lane in front of me.
+
 To make it more robust:
- - instead of hardcoding the perspective transform parameters, make it dynamic which means through further image processing computations like detecting the parallelogram that the lanes form and get its corners then transform it.
- - instead of assuming that the camera is in the center of the vehicle we can make a starting code to futher calibrate it, like if it's not in the center calculate how much it's drifted and use this value in further computations.
- - instead of my sliding window algorithm, use the algorithm with the convolution method, it should be much more robust in extreme cases.
+- instead of hardcoding the perspective transform parameters, make it dynamic which means through further image processing computations like detecting the parallelogram that the lanes form and get its corners then transform it.
+- instead of assuming that the camera is in the center of the vehicle we can make a starting code to futher calibrate it, like if it's not in the center calculate how much it's drifted and use this value in further computations.
+- instead of my sliding window algorithm, use the algorithm with the convolution method, it should be much more robust in extreme cases.
  - maybe futher tuning the color space transform and the graident step.
 
