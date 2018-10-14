@@ -32,6 +32,12 @@ The goals / steps of this project are the following:
 [image8]: ./output_images/Color_space_grad_combin_test6.jpg "Output"
 [image9]: ./output_images/pres_trans.png "Output"
 
+[image10]: ./output_images/outputImage5.png "Output"
+[image11]: ./output_images/perstrans5.png "Output"
+[image12]: ./output_images/output6.png "Output"
+
+[image13]: ./output_images/colored_trans_lanes.png "Output"
+
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -92,6 +98,7 @@ src=np.float32(
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
 ![alt text][image9]
+![alt text][image11]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
@@ -110,14 +117,19 @@ so what `without_window()` function does (which you will find in code cell no.9)
 
 the sanity checks are checks like - Are both of the lanes curvature reasnobaly similar? do they make sense? are they quite parallel? - is the distance between the lanes reasonable? and so on.. as long as the detections pass these checks, we will add this result to our sane_detected_lanes[] list and make it an input to the green area calculations. (Whether it's detected from option 1 or option 2 since they passed the checks they should be added to the list)
 
+![alt text][image13]
+NOTE THAT this image was taken way before i finialized this project so the result in it doesn't necessarily mean it's the final result of the project.
 
-
-![alt text][image5]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
 I did this in `advanced_fit_poly()` line 50 through 80 function and `without_window()` line 60 through 100.
-I followed the student's method mentioned in the lesson, which is that we convert the polynomials' coefficients' to the real world dimentions first then we substitute in the curvature calculation equations which were mentioned in the lessons as well, 
+I followed the student's method mentioned in the lesson, which is that we convert the polynomials' coefficients' to the real world dimentions first : `x= mx / (my ** 2) *a*(y**2)+(mx/my)*b*y+c`
+then we substitute in the curvature calculation equations which were mentioned in the lessons as well, 
+`
+Rcurve= (1+(2Ay+B)**2)**(3/2) /∣2A∣
+ 
+`
 parameters 
 `my = 30/700 # meters per pixel in y dimension
  mx = 3.7/600 # meters per pixel in x dimension`
@@ -129,7 +141,22 @@ while in the `without_window()` because we didn't compute a histogram, i assumed
 
 I implemented this step in `P2- For Delivery.ipynb` in the 5th code cell lines 1 through 30 in the function `unwarp()`. After computing the polynomials and getting the lanes correctly and all, this function draws a polygon to fill the area between the lanes, unwarps it using the function cv2.warpPerspective(), then weights it on the original image as shown:
 
-![alt text][image6]
+
+![alt text][image10]
+
+![alt text][image12]
+
+
+#### 7.The Tracking- Look Ahead Filter-Reset- Smoothing.
+ I used the Line() class template provided in the Tips and Tricks for the project part, but edited it to suit my code,
+ so the attributes became the polynomials' coefficients, the radius, and the vehicle position only.
+ And as mentioned identifying the lane pixles and the polynomial part (this long paragraph above). I created a sane_line list of n values, to store the good enough line detection values (good enough means they passed the sanity checks). and after gaining a sufficient number of good enough lane detections, we loop over them for the next frames, and start searching around their polynomials and not randomly in the frame, and again whenever a new good enough detection is obtained in this method as well, it is added to the list to provide further smoothing to the results.
+ `class Line():
+    detected = False
+    left_poly_coeff=[np.array([False])]
+    right_poly_coeff=[np.array([False])]
+    radius=0
+    vehicle_pos=0`
 
 ---
 
@@ -138,7 +165,8 @@ I implemented this step in `P2- For Delivery.ipynb` in the 5th code cell lines 1
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
 Here's a [link to my video result](./output_video.mp4)
-Here's a [link to my video result](https://classroom.udacity.com/nanodegrees/nd013-ent/parts/f114da49-70ce-4ebe-b88c-e0ab576aed25/modules/37588c52-f496-4568-898e-651cbd0e8fc1/lessons/22dced51-df3a-4679-b2bf-a5ca5cd91699/concepts/0a96d23f-6c22-4053-a7f6-83e12ce5a6ec#)
+
+Here's a [link to my video result in the workspace](https://classroom.udacity.com/nanodegrees/nd013-ent/parts/f114da49-70ce-4ebe-b88c-e0ab576aed25/modules/37588c52-f496-4568-898e-651cbd0e8fc1/lessons/22dced51-df3a-4679-b2bf-a5ca5cd91699/concepts/0a96d23f-6c22-4053-a7f6-83e12ce5a6ec#)
 
 ---
 
@@ -153,8 +181,11 @@ My pipeline may fail:
  - probably if the car was moving up or down a hill, the perspective transform wouldn't work as expected.
  - if the camera is not implemented right in the center of the vehicle the calculations may fail.
  - if there's a great curve my sliding window algorithm wouldn't probably work.
+ - if the street is not well paved i.e it has grooves or holes (like in the challenge video), the pipeline will fail to detect the lane pixels since it's originally based on the gradient change. 
+ - if the front glass of the vehicle is not clear (like in the harder challenge video) also when someone crosses the lane in front of me.
 To make it more robust:
  - instead of hardcoding the perspective transform parameters, make it dynamic which means through further image processing computations like detecting the parallelogram that the lanes form and get its corners then transform it.
  - instead of assuming that the camera is in the center of the vehicle we can make a starting code to futher calibrate it, like if it's not in the center calculate how much it's drifted and use this value in further computations.
  - instead of my sliding window algorithm, use the algorithm with the convolution method, it should be much more robust in extreme cases.
+ - maybe futher tuning the color space transform and the graident step.
 
